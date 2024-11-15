@@ -14,7 +14,6 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements/dev.txt
-        continue_on_error: true
       - name: Lint with ruff
         run: |
           ruff check --output-format=github .
