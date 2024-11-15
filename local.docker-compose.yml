@@ -1,0 +1,59 @@
+# Comments are provided throughout this file to help you get started.
+# If you need more help, visit the Docker compose reference guide at
+# https://docs.docker.com/compose/compose-file/
+
+# Here the instructions define your application as a service called "server".
+# This service is built from the Dockerfile in the current directory.
+# You can add other services your application may depend on here, such as a
+# database or a cache. For examples, see the Awesome Compose repository:
+# https://github.com/docker/awesome-compose
+services:
+  breadfund_app:
+    hostname: breadfund_app
+    container_name: breadfund_service
+    build:
+      context: .
+      dockerfile: local.Dockerfile
+    volumes:
+      - .:/app
+    ports:
+      - 4010:8000
+    env_file:
+      - .env
+    depends_on:
+      - breadfund_redis
+    labels:
+      - "traefik.enable=true"
+      # note: localhost is like a domain name for local host machine addr: 127.0.0.1
+      - "traefik.http.routers.breadfund.rule=Host(`breadfund.localhost`)"
+
+
+  breadfund_redis:
+    image: redis:7.2-alpine
+    hostname: breadfund_redis
+    container_name: breadfund_redis_service
+    command:
+      - 'redis-server'
+      - '--requirepass myStrongPassword'
+    expose:
+      - 6479
+
+
+  breadfund_proxy:
+    image: traefik:3.2
+    hostname: breadfund_rproxy
+    container_name: breadfund_traefik_service
+    # Enables the web UI and tells Traefik to listen to docker
+    command:
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedByDefault=false
+      - --log.level=INFO
+    ports:
+      # The HTTP port
+      - "8020:80"
+      # The web UI
+      - "8021:8080"
+    volumes:
+      # So that traefik can listen to docker events
+      - /var/run/docker.sock:/var/run/docker.sock:ro
