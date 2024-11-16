@@ -34,8 +34,26 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.DEPLOY_KEY }}
+          envs: |
+            PROD_DATABASE_URL
+          environment: PROD_DATABASE_URL=${{ secrets.PROD_DATABASE_URL }}
           script: |
             cd ~/app
+
+            echo "Running database migrations..."
+            # Create a temporary container to run migrations
+            docker run --rm \
+              -e DATABASE_URL="${PROD_DATABASE_URL}" \
+              zr0th/breadfund:latest \
+              alembic upgrade head
+
+            if [ $? -ne 0 ]; then
+              echo "Migration failed!"
+              exit 1
+            fi
+
+            echo "Migrations completed successfully. Deploying application..."
+
 
             # Pull the new images first
             docker compose pull
