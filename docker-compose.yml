@@ -7,8 +7,8 @@ services:
       - "80:80"
     env_file:
       - .prod.env
-    depends_on:
-      - breadfund_proxy
+    # depends_on:
+    #   - breadfund_proxy
   #   labels:
   #     - "traefik.enable=true"
   #     - "traefik.http.routers.breadfund.rule=Host(`34.73.74.184`) || PathPrefix(`/`)"
