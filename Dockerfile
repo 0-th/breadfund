@@ -1,4 +1,4 @@
-FROM tiangolo/uvicorn-gunicorn:python3.12-slim
+FROM tiangolo/uvicorn-gunicorn:latest-slim
 
 RUN apt-get update && \
     apt-get install -y netcat-openbsd gcc libpq-dev && \
