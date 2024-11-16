@@ -24,7 +24,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.DEPLOY_KEY }}
-          source: "docker-compose.yml"
+          source: "docker-compose.yml, alembic.ini"
           target: "~/app/"
           strip_components: 0
 
