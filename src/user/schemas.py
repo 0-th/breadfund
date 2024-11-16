@@ -9,6 +9,7 @@ from pydantic.networks import EmailStr
 from pydantic.types import StringConstraints
 
 from src.schemas import CustomModel
+from src.user.models import Gender
 
 STRONG_PASSWORD_PATTERN = re.compile(r"^(?=.*[\d])(?=.*[!@#$%^&*])[\w!@#$%^&*]{6,128}$")
 
@@ -51,6 +52,7 @@ def validate_password(password: str) -> str:
 
 class UserSchemaCommon(CustomModel):
     email: Annotated[EmailStr, StringConstraints(to_lower=True)]
+    gender: Gender
     first_name: str
     last_name: str
 

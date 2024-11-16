@@ -22,7 +22,7 @@ async def register_user(
     db: Annotated[AsyncSession, Depends(session)],
 ) -> None:
     await service.create_user(
-        db, data.email, data.first_name, data.last_name, data.password
+        db, data.email, data.first_name, data.last_name, data.password, data.gender
     )
     return
 

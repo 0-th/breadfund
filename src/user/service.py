@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
 from src.user import exceptions
-from src.user.models import User
+from src.user.models import Gender, User
 from src.user.security import check_password, hash_password
 
 
@@ -19,13 +19,19 @@ async def check_user_exists_by_email(db: AsyncSession, email: str) -> User | Non
 
 
 async def create_user(
-    db: AsyncSession, email: str, first_name: str, last_name: str, password: str
+    db: AsyncSession,
+    email: str,
+    first_name: str,
+    last_name: str,
+    password: str,
+    gender: Gender,
 ):
     user = User(
         id=uuid4(),
         email=email,
         firstname=first_name,
         lastname=last_name,
+        gender=gender,
         password=hash_password(password),
     )
     return user
