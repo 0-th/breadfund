@@ -1,4 +1,5 @@
-FROM tiangolo/uvicorn-gunicorn:latest-slim
+ARG PYTHON_VERSION=3.12
+FROM python:${PYTHON_VERSION}-slim as base
 
 RUN apt-get update && \
     apt-get install -y netcat-openbsd gcc libpq-dev && \
@@ -22,3 +23,6 @@ ENV PATH "$PATH:/app/scripts"
 
 # Make scripts executable
 RUN chmod +x /app/scripts/*
+
+
+CMD ["fastapi", "run", "src/main.py", "--port", "80", "--workers", "4"]
