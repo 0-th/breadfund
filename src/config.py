@@ -1,6 +1,6 @@
 from typing import Any
 
-from pydantic.networks import PostgresDsn, RedisDsn
+from pydantic.networks import PostgresDsn
 from pydantic_settings import BaseSettings
 
 from src.constants import Environment
@@ -12,7 +12,6 @@ class Config(BaseSettings):
     JWT_ALG: str
 
     DATABASE_URL: PostgresDsn
-    REDIS_URL: RedisDsn
 
     APP_VERSION: int = 1
 

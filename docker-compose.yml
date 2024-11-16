@@ -3,8 +3,7 @@ services:
     image: zr0th/breadfund:latest
     expose:
       - 8000
-    env_file:
-      -.env.prod
+    env_file: -.prod.env
     depends_on:
       - breadfund_proxy
     labels:
@@ -12,7 +11,6 @@ services:
       # This rule matches any Host header, so it'll work with IP address
       - "traefik.http.routers.fastapi.rule=PathPrefix(`/`)"
       - "traefik.http.services.fastapi.loadbalancer.server.port=8000"
-
 
   breadfund_proxy:
     image: traefik:3.2
