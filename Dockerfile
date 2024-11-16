@@ -7,23 +7,11 @@ RUN apt-get update && \
     rm -rf /var/cache/apt/*
 
 # Prevents Python from writing pyc files.
-# Keeps Python from buffering stdout and stderr to avoid situations where
-# the application crashes without emitting any logs due to buffering.
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PYTHONIOENCODING=utf-8
 
 WORKDIR /app
 
-# copy scripts
-COPY ./scripts/ /app/scripts/
-
-# Add scripts folder to PATH
-ENV PATH "$PATH:/app/scripts"
-
-# give execution permission for scripts to all users
-RUN chmod +x /app/scripts/*
-
-# Create a non-privileged user that the app will run under.
-# See https://docs.docker.com/go/dockerfile-user-best-practices/
+# Create a non-privileged user
 ARG UID=1000
 RUN adduser \
     --disabled-password \
@@ -34,18 +22,24 @@ RUN adduser \
     --uid "${UID}" \
     appuser
 
-# Download dependencies as a separate step to take advantage of Docker's caching.
-# Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
-# Leverage a bind mount to requirements.txt to avoid having to copy them into
-# into this layer.
+# Download dependencies
 RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements/prod.txt,target=/tmp/prod.txt \
     python -m pip install -r /tmp/prod.txt
 
-# Set non-root user to run the application
-USER appuser
-
+# Copy application files
 COPY . .
+
+# Fix permissions for appuser
+RUN chown -R appuser:appuser /app && \
+    chmod -R 755 /app && \
+    chmod +x /app/scripts/*
+
+# Add scripts folder to PATH
+ENV PATH "$PATH:/app/scripts"
+
+# Now switch to non-root user
+USER appuser
 
 # Expose the port that the application listens on.
 EXPOSE 8000
