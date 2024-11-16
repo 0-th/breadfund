@@ -103,7 +103,6 @@ async def retrieve_campaign(
 
 
 @campaign_router.post(
-    "/{campaign_id}",
     status_code=status.HTTP_201_CREATED,
     response_model=UUID4,
     summary="Create a campaign",
