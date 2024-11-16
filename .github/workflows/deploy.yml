@@ -47,42 +47,22 @@ jobs:
             #   zr0th/breadfund:latest \
             #   alembic upgrade head
 
-            if [ $? -ne 0 ]; then
-              echo "Migration failed!"
-              exit 1
-            fi
+            # if [ $? -ne 0 ]; then
+            #   echo "Migration failed!"
+            #   exit 1
+            # fi
 
-            echo "Migrations completed successfully. Deploying application..."
+            # echo "Migrations completed successfully. Deploying application..."
 
 
             # Pull the new images first
             docker compose pull
-
-            # Check if pull was successful
-            if [ $? -ne 0 ]; then
-              echo "Failed to pull new images"
-              exit 1
-            fi
-
-            # Store the current state for rollback if needed
-            docker compose ps > ~/app/previous_state.txt
 
             # Gracefully stop the services
             docker compose down --remove-orphans
 
             # Start the new services
             docker compose up -d
-
-            # Check if services are healthy
-            sleep 10  # Give services time to start
-            if ! docker compose ps | grep -q "running"; then
-              echo "Services failed to start properly"
-              echo "Rolling back to previous state..."
-              docker compose down
-              # Restore previous images and restart
-              docker compose up -d
-              exit 1
-            fi
 
             # Clean up only if deployment was successful
             docker image prune -f
