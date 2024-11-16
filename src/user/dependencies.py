@@ -59,6 +59,6 @@ async def validate_user_not_exist(
     db: Annotated[AsyncSession, Depends(session)],
     data: schemas.UserCreateRequest,
 ) -> schemas.UserCreateRequest:
-    if await service.check_user_exists_by_email(db, data.email):
+    if not await service.check_user_exists_by_email(db, data.email):
         return data
     raise exceptions.UserEmailExists()
