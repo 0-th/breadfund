@@ -1,26 +1,28 @@
 services:
   breadfund_app:
     image: zr0th/breadfund:latest
-    expose:
-      - 8000
+    # expose:
+    #   - 80
+    ports:
+      - "80:80"
     env_file:
       - .prod.env
     depends_on:
       - breadfund_proxy
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.breadfund.rule=Host(`34.73.74.184`) || PathPrefix(`/`)"
-      - "traefik.http.services.breadfund.loadbalancer.server.port=8000"
-
-  breadfund_proxy:
-    image: traefik:3.2
-    restart: always
-    command:
-      - --api.insecure=true
-      - --api.dashboard=true
-      - --providers.docker.exposedByDefault=false
-      - --log.level=INFO
-    ports:
-      - "8000:8000"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.breadfund.rule=Host(`34.73.74.184`) || PathPrefix(`/`)"
+  #     - "traefik.http.services.breadfund.loadbalancer.server.port=8000"
+  #
+  # breadfund_proxy:
+  #   image: traefik:3.2
+  #   restart: always
+  #   command:
+  #     - --api.insecure=true
+  #     - --api.dashboard=true
+  #     - --providers.docker.exposedByDefault=false
+  #     - --log.level=INFO
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
