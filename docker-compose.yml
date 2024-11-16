@@ -9,8 +9,7 @@ services:
       - breadfund_proxy
     labels:
       - "traefik.enable=true"
-      # This rule matches any Host header, so it'll work with IP address
-      - "traefik.http.routers.fastapi.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.fastapi.rule=Host(`34.73.74.184`) || PathPrefix(`/`)"
       - "traefik.http.services.fastapi.loadbalancer.server.port=8000"
 
   breadfund_proxy:
