@@ -40,12 +40,12 @@ jobs:
           script: |
             cd ~/app
 
-            echo "Running database migrations..."
-            # Create a temporary container to run migrations
-            docker run --rm \
-              -e DATABASE_URL="${PROD_DATABASE_URL}" \
-              zr0th/breadfund:latest \
-              alembic upgrade head
+            # echo "Running database migrations..."
+            # # Create a temporary container to run migrations
+            # docker run --rm \
+            #   -e DATABASE_URL="${PROD_DATABASE_URL}" \
+            #   zr0th/breadfund:latest \
+            #   alembic upgrade head
 
             if [ $? -ne 0 ]; then
               echo "Migration failed!"
@@ -72,6 +72,8 @@ jobs:
 
             # Start the new services
             docker compose up -d
+
+            docker compose exec breadfund_app "alembic upgrade head"
 
             # Check if services are healthy
             sleep 10  # Give services time to start
