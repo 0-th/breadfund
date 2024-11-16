@@ -24,7 +24,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.DEPLOY_KEY }}
-          source: "docker-compose.yml, alembic.ini"
+          source: "docker-compose.yml"
           target: "~/app/"
           strip_components: 0
 
@@ -43,6 +43,7 @@ jobs:
             echo "Running database migrations..."
             # Create a temporary container to run migrations
             docker run --rm \
+              -v $(pwd)/alembic.ini:/app/alembic.ini \
               -e DATABASE_URL="${PROD_DATABASE_URL}" \
               zr0th/breadfund:latest \
               alembic upgrade head
