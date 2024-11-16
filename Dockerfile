@@ -45,7 +45,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 # Set non-root user to run the application
 USER appuser
 
-COPY . /app/
+COPY . .
 
 # Expose the port that the application listens on.
 EXPOSE 8000
