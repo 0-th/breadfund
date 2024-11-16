@@ -3,7 +3,8 @@ services:
     image: zr0th/breadfund:latest
     expose:
       - 8000
-    env_file: -.prod.env
+    env_file:
+      - .prod.env
     depends_on:
       - breadfund_proxy
     labels:
