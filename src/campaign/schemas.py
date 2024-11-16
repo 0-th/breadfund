@@ -3,6 +3,7 @@ from typing import Annotated
 
 from fastapi import File, Form, UploadFile
 from pydantic import UUID4, Field
+from pydantic.networks import HttpUrl
 
 from src.schemas import CustomModel
 
@@ -67,3 +68,7 @@ class CreateFeedPostRequest(CustomModel):
 class UpdateFeedPostRequest(CustomModel):
     text: Annotated[str | None, Form()] = None
     media: Annotated[list[UploadFile] | None, Form()] = None
+
+
+class GenerateCampaignQRCodeRequest(CustomModel):
+    full_url_to_campaign_page: HttpUrl

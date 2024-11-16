@@ -1,7 +1,9 @@
+from io import BytesIO
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, status
+import segno
+from fastapi import APIRouter, Depends, Query, Response, status
 from pydantic.types import UUID4
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
@@ -187,8 +189,19 @@ async def react_to_campaign(
 @campaign_router.get(
     "/{campaign_id}/qr-code",
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(dependencies.validate_user_created_campaign)],
+    summary="Generate qr-code for a campaign",
+    responses={status.HTTP_201_CREATED: {"content": {"image/png": {}}}},
 )
-async def generate_qr_code(): ...
+async def generate_qr_code(
+    data: schemas.GenerateCampaignQRCodeRequest,
+):
+    campaign_url = str(data.full_url_to_campaign_page)
+    buffer = BytesIO()
+    segno.make_qr(campaign_url).save(buffer, scale=10)
+    buffer.seek(0)
+
+    return Response(content=buffer.getvalue(), media_type="image/png")
 
 
 @campaign_router.post(
