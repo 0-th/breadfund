@@ -45,7 +45,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 # Set non-root user to run the application
 USER appuser
 
-# mount source directory in `./local.docker-compose.yaml`
+COPY . /app/
 
 # Expose the port that the application listens on.
 EXPOSE 8000
