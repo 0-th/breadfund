@@ -340,3 +340,29 @@ async def save_donation(
         campaign,
     )
     return
+
+
+@campaign_router.get(
+    "/{campaign_id}/donation",
+    summary="Get all donations made to a campaign",
+    status_code=status.HTTP_200_OK,
+    response_model=list[schemas.DonationResponse],
+)
+async def get_campaign_donations(
+    campaign: Annotated[Campaign, Depends(dependencies.validate_campaign_exist)],
+) -> list[schemas.DonationResponse]:
+    donations = await campaign.awaitable_attrs.donations
+    donations_response: list[schemas.DonationResponse] = []
+    for donation in donations:
+        donations_response.append(
+            schemas.DonationResponse(
+                id=donation.id,
+                anonymous=donation.anonymous,
+                name=donation.name if donation.anonymous else None,
+                social_media_link=donation.social_media_links
+                if donation.anonymous
+                else None,
+                amount=donation.amount,
+            )
+        )
+    return donations_response

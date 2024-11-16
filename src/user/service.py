@@ -29,7 +29,7 @@ async def create_donation(
     recovery_acct_bank: str,
     recovery_acct_name: str,
     campaign: Campaign,
-):
+) -> None:
     donation = Donation(
         anonymous=anonymous,
         payaza_reference=payaza_reference,
@@ -42,5 +42,8 @@ async def create_donation(
         campaign=campaign,
         amount=amount_received,
     )
+
+    campaign.no_of_supporters += 1
     db.add(donation)
+    db.add(campaign)
     return

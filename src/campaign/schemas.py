@@ -84,3 +84,11 @@ class SaveDonationRequest(CustomModel):
     recovery_acct_no: int
     recovery_acct_bank: str
     recovery_acct_name: str
+
+
+class DonationResponse(CustomModel):
+    id: UUID4
+    anonymous: bool
+    name: str | None
+    social_media_link: list[str] | None
+    amount: float
