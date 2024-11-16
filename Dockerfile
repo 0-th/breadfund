@@ -22,7 +22,3 @@ ENV PATH "$PATH:/app/scripts"
 
 # Make scripts executable
 RUN chmod +x /app/scripts/*
-
-EXPOSE 8000
-
-CMD /app/scripts/start-prod.sh
