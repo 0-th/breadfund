@@ -31,7 +31,9 @@ cfgv==3.4.0
 charset-normalizer==3.4.0
     # via requests
 click==8.1.7
-    # via uvicorn
+    # via
+    #   typer
+    #   uvicorn
 coverage==7.6.4
     # via breadfund (pyproject.toml)
 cryptography==43.0.3
@@ -48,13 +50,17 @@ dnspython==2.7.0
 ecdsa==0.19.0
     # via python-jose
 email-validator==2.2.0
-    # via pydantic
+    # via
+    #   fastapi
+    #   pydantic
 executing==2.1.0
     # via logfire
-fastapi==0.115.3
+fastapi[standard]==0.115.3
     # via
     #   breadfund (pyproject.toml)
     #   sentry-sdk
+fastapi-cli[standard]==0.0.5
+    # via fastapi
 filelock==3.16.1
     # via virtualenv
 googleapis-common-protos==1.65.0
@@ -70,7 +76,9 @@ httpcore==1.0.6
 httptools==0.6.4
     # via uvicorn
 httpx==0.27.2
-    # via breadfund (pyproject.toml)
+    # via
+    #   breadfund (pyproject.toml)
+    #   fastapi
 identify==2.6.1
     # via pre-commit
 idna==3.10
@@ -83,6 +91,8 @@ importlib-metadata==8.4.0
     # via opentelemetry-api
 iniconfig==2.0.0
     # via pytest
+jinja2==3.1.4
+    # via fastapi
 logfire==1.2.0
     # via breadfund (pyproject.toml)
 mako==1.3.6
@@ -90,7 +100,9 @@ mako==1.3.6
 markdown-it-py==3.0.0
     # via rich
 markupsafe==3.0.2
-    # via mako
+    # via
+    #   jinja2
+    #   mako
 mdurl==0.1.2
     # via markdown-it-py
 nodeenv==1.9.1
@@ -173,7 +185,9 @@ python-dotenv==1.0.1
 python-jose[cryptography]==3.3.0
     # via breadfund (pyproject.toml)
 python-multipart==0.0.12
-    # via breadfund (pyproject.toml)
+    # via
+    #   breadfund (pyproject.toml)
+    #   fastapi
 pyyaml==6.0.2
     # via
     #   pre-commit
@@ -183,15 +197,21 @@ redis==5.1.1
 requests==2.32.3
     # via opentelemetry-exporter-otlp-proto-http
 rich==13.9.3
-    # via logfire
+    # via
+    #   logfire
+    #   typer
 rsa==4.9
     # via python-jose
 ruff==0.7.0
     # via breadfund (pyproject.toml)
 scalar-fastapi==1.0.3
     # via breadfund (pyproject.toml)
+segno==1.6.1
+    # via breadfund (pyproject.toml)
 sentry-sdk[fastapi]==2.17.0
     # via breadfund (pyproject.toml)
+shellingham==1.5.4
+    # via typer
 six==1.16.0
     # via ecdsa
 sniffio==1.3.1
@@ -204,6 +224,8 @@ sqlalchemy==2.0.36
     #   breadfund (pyproject.toml)
 starlette==0.41.0
     # via fastapi
+typer==0.13.0
+    # via fastapi-cli
 typing-extensions==4.12.2
     # via
     #   alembic
@@ -214,12 +236,16 @@ typing-extensions==4.12.2
     #   pydantic-core
     #   pyright
     #   sqlalchemy
+    #   typer
 urllib3==2.2.3
     # via
     #   requests
     #   sentry-sdk
 uvicorn[standard]==0.32.0
-    # via breadfund (pyproject.toml)
+    # via
+    #   breadfund (pyproject.toml)
+    #   fastapi
+    #   fastapi-cli
 uvloop==0.21.0
     # via uvicorn
 virtualenv==20.27.0

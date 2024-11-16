@@ -7,7 +7,7 @@ name = "breadfund"
 version = "0.1"
 
 dependencies = [
-  "fastapi",
+  "fastapi[standard]",
   "uvicorn[standard]",
   "pydantic-core",
   "pydantic[email]",

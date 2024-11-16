@@ -11,6 +11,7 @@ annotated-types==0.7.0
 anyio==4.6.2.post1
     # via
     #   breadfund (pyproject.toml)
+    #   httpx
     #   starlette
     #   watchfiles
 asyncpg==0.30.0
@@ -19,6 +20,8 @@ bcrypt==4.2.0
     # via passlib
 certifi==2024.8.30
     # via
+    #   httpcore
+    #   httpx
     #   requests
     #   sentry-sdk
 cffi==1.17.1
@@ -26,7 +29,9 @@ cffi==1.17.1
 charset-normalizer==3.4.0
     # via requests
 click==8.1.7
-    # via uvicorn
+    # via
+    #   typer
+    #   uvicorn
 cryptography==43.0.3
     # via python-jose
 deprecated==1.2.14
@@ -39,13 +44,17 @@ dnspython==2.7.0
 ecdsa==0.19.0
     # via python-jose
 email-validator==2.2.0
-    # via pydantic
+    # via
+    #   fastapi
+    #   pydantic
 executing==2.1.0
     # via logfire
-fastapi==0.115.3
+fastapi[standard]==0.115.3
     # via
     #   breadfund (pyproject.toml)
     #   sentry-sdk
+fastapi-cli[standard]==0.0.5
+    # via fastapi
 googleapis-common-protos==1.65.0
     # via opentelemetry-exporter-otlp-proto-http
 greenlet==3.1.1
@@ -53,16 +62,25 @@ greenlet==3.1.1
 gunicorn==23.0.0
     # via breadfund (pyproject.toml)
 h11==0.14.0
-    # via uvicorn
+    # via
+    #   httpcore
+    #   uvicorn
+httpcore==1.0.7
+    # via httpx
 httptools==0.6.4
     # via uvicorn
+httpx==0.27.2
+    # via fastapi
 idna==3.10
     # via
     #   anyio
     #   email-validator
+    #   httpx
     #   requests
 importlib-metadata==8.4.0
     # via opentelemetry-api
+jinja2==3.1.4
+    # via fastapi
 logfire==1.2.0
     # via breadfund (pyproject.toml)
 mako==1.3.6
@@ -70,7 +88,9 @@ mako==1.3.6
 markdown-it-py==3.0.0
     # via rich
 markupsafe==3.0.2
-    # via mako
+    # via
+    #   jinja2
+    #   mako
 mdurl==0.1.2
     # via markdown-it-py
 opentelemetry-api==1.27.0
@@ -137,7 +157,9 @@ python-jose[cryptography]==3.3.0
 python-json-logger==2.0.7
     # via breadfund (pyproject.toml)
 python-multipart==0.0.12
-    # via breadfund (pyproject.toml)
+    # via
+    #   breadfund (pyproject.toml)
+    #   fastapi
 pyyaml==6.0.2
     # via uvicorn
 redis==5.1.1
@@ -145,23 +167,33 @@ redis==5.1.1
 requests==2.32.3
     # via opentelemetry-exporter-otlp-proto-http
 rich==13.9.3
-    # via logfire
+    # via
+    #   logfire
+    #   typer
 rsa==4.9
     # via python-jose
 scalar-fastapi==1.0.3
     # via breadfund (pyproject.toml)
+segno==1.6.1
+    # via breadfund (pyproject.toml)
 sentry-sdk[fastapi]==2.17.0
     # via breadfund (pyproject.toml)
+shellingham==1.5.4
+    # via typer
 six==1.16.0
     # via ecdsa
 sniffio==1.3.1
-    # via anyio
+    # via
+    #   anyio
+    #   httpx
 sqlalchemy==2.0.36
     # via
     #   alembic
     #   breadfund (pyproject.toml)
 starlette==0.41.0
     # via fastapi
+typer==0.13.0
+    # via fastapi-cli
 typing-extensions==4.12.2
     # via
     #   alembic
@@ -171,12 +203,16 @@ typing-extensions==4.12.2
     #   pydantic
     #   pydantic-core
     #   sqlalchemy
+    #   typer
 urllib3==2.2.3
     # via
     #   requests
     #   sentry-sdk
 uvicorn[standard]==0.32.0
-    # via breadfund (pyproject.toml)
+    # via
+    #   breadfund (pyproject.toml)
+    #   fastapi
+    #   fastapi-cli
 uvloop==0.21.0
     # via uvicorn
 watchfiles==0.24.0
