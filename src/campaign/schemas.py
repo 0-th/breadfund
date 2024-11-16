@@ -72,3 +72,15 @@ class UpdateFeedPostRequest(CustomModel):
 
 class GenerateCampaignQRCodeRequest(CustomModel):
     full_url_to_campaign_page: HttpUrl
+
+
+class SaveDonationRequest(CustomModel):
+    payaza_reference: str
+    transaction_reference: str
+    amount_received: float
+    name: str
+    social_media_links: list[str] | None
+    anonymous: bool
+    recovery_acct_no: int
+    recovery_acct_bank: str
+    recovery_acct_name: str

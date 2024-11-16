@@ -54,12 +54,14 @@ class Campaign(CommonFieldsMixin, TimestampMixin, Base):
 class Donation(CommonFieldsMixin, TimestampMixin, Base):
     __tablename__ = "donation"
     anonymous: Mapped[bool] = mapped_column()
+    payaza_reference: Mapped[str]
+    transaction_reference: Mapped[str]
     name: Mapped[str | None]
-    social_media_link: Mapped[list[str]] = mapped_column(
+    social_media_link: Mapped[list[str] | None] = mapped_column(
         ARRAY(String, zero_indexes=True)
     )
     donor_id: Mapped[UUID | None] = mapped_column(
-        ForeignKey("users.id", ondelete="SET NULL")
+        ForeignKey("users.id", ondelete="SET NULL"), init=False
     )
     recovery_acct_no: Mapped[int]
     recovery_acct_bank: Mapped[str]
@@ -70,7 +72,7 @@ class Donation(CommonFieldsMixin, TimestampMixin, Base):
     campaign: Mapped[Campaign] = relationship(
         back_populates="donations", foreign_keys=campaign_id
     )
-    amount: Mapped[int] = mapped_column(BigInteger, default=0, init=False)
+    amount: Mapped[float] = mapped_column(BigInteger, default=0)
 
 
 class FeedPost(CommonFieldsMixin, TimestampMixin, Base):

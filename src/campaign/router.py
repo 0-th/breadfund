@@ -312,3 +312,31 @@ async def delete_feed_post(
 ) -> None:
     await service.delete_feed_post(db, feed_post)
     return
+
+
+@campaign_router.post(
+    "/{campaign_id}/donation",
+    response_model=None,
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(dependencies.validate_campaign_exist)],
+    summary="Save information on a donation",
+)
+async def save_donation(
+    db: Annotated[AsyncSession, Depends(session)],
+    campaign: Annotated[Campaign, Depends(dependencies.validate_campaign_exist)],
+    data: schemas.SaveDonationRequest,
+):
+    await user_service.create_donation(
+        db,
+        data.payaza_reference,
+        data.transaction_reference,
+        data.amount_received,
+        data.name,
+        data.social_media_links,
+        data.anonymous,
+        data.recovery_acct_no,
+        data.recovery_acct_bank,
+        data.recovery_acct_name,
+        campaign,
+    )
+    return
