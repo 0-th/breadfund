@@ -1,4 +1,4 @@
-from src.exceptions import NotAuthenticated, NotFound
+from src.exceptions import BadRequest, NotAuthenticated, NotFound
 
 
 class InvalidAccessToken(NotAuthenticated):
@@ -12,3 +12,11 @@ class InvalidAccessToken(NotAuthenticated):
 
 class UserNotFound(NotFound):
     DETAIL = "User Not Found."
+
+
+class UserEmailExists(BadRequest):
+    DETAIL = "User Email Already Exists."
+
+
+class InvalidCredentials(NotAuthenticated):
+    DETAIL = "Invalid credentials."

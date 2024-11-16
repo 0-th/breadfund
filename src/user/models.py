@@ -13,3 +13,4 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(255))
     firstname: Mapped[str] = mapped_column(String(255))
     lastname: Mapped[str] = mapped_column(String(255))
+    password: Mapped[str] = mapped_column(String(255))

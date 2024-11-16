@@ -4,6 +4,7 @@ from scalar_fastapi import get_scalar_api_reference
 
 from src.campaign.router import campaign_router
 from src.config import app_configs
+from src.user.router import user_router
 
 app = FastAPI(**app_configs)
 
@@ -38,3 +39,4 @@ async def scalar_html():
 
 
 app.include_router(campaign_router, prefix="/campaign", tags=["Campaign"])
+app.include_router(user_router, prefix="/user", tags=["User"])

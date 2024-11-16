@@ -326,7 +326,7 @@ async def save_donation(
     campaign: Annotated[Campaign, Depends(dependencies.validate_campaign_exist)],
     data: schemas.SaveDonationRequest,
 ):
-    await user_service.create_donation(
+    await service.create_donation(
         db,
         data.payaza_reference,
         data.transaction_reference,

@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from typing import Annotated
 
 from fastapi import Depends
@@ -8,12 +9,25 @@ from sqlalchemy.ext.asyncio.session import AsyncSession
 
 from src.config import settings
 from src.database import session
-from src.user import exceptions, service
+from src.user import exceptions, schemas, service
 from src.user.exceptions import InvalidAccessToken
 from src.user.models import User
 from src.user.schemas import AccessTokenData
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="", scopes={})
+
+
+def generate_access_token(user: User) -> str:
+    jwt_data = {
+        "sub": str(user.id),
+        "type": "access_token",
+        "iat": datetime.utcnow().timestamp(),
+        "exp": (datetime.utcnow() + timedelta(days=1)).timestamp(),
+    }
+
+    return jwt.encode(
+        claims=jwt_data, key=settings.JWT_SECRET, algorithm=settings.JWT_ALG
+    )
 
 
 def parse_access_token(
@@ -39,3 +53,12 @@ async def validate_user_access_token(
         raise exceptions.InvalidAccessToken()
 
     return user
+
+
+async def validate_user_not_exist(
+    db: Annotated[AsyncSession, Depends(session)],
+    data: schemas.UserCreateRequest,
+) -> schemas.UserCreateRequest:
+    if await service.check_user_exists_by_email(db, data.email):
+        return data
+    raise exceptions.UserEmailExists()

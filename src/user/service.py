@@ -1,10 +1,11 @@
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
-from src.campaign.models import Campaign, Donation
+from src.user import exceptions
 from src.user.models import User
+from src.user.security import check_password, hash_password
 
 
 async def check_user_exists_by_id(db: AsyncSession, user_id: UUID) -> User | None:
@@ -17,33 +18,22 @@ async def check_user_exists_by_email(db: AsyncSession, email: str) -> User | Non
     return query_scalars.one_or_none()
 
 
-async def create_donation(
-    db: AsyncSession,
-    payaza_reference: str,
-    transaction_reference: str,
-    amount_received: float,
-    name: str,
-    social_media_link: list[str] | None,
-    anonymous: bool,
-    recovery_acct_no: int,
-    recovery_acct_bank: str,
-    recovery_acct_name: str,
-    campaign: Campaign,
-) -> None:
-    donation = Donation(
-        anonymous=anonymous,
-        payaza_reference=payaza_reference,
-        transaction_reference=transaction_reference,
-        name=name,
-        social_media_link=social_media_link,
-        recovery_acct_no=recovery_acct_no,
-        recovery_acct_bank=recovery_acct_bank,
-        recovery_acct_name=recovery_acct_name,
-        campaign=campaign,
-        amount=amount_received,
+async def create_user(
+    db: AsyncSession, email: str, first_name: str, last_name: str, password: str
+):
+    user = User(
+        id=uuid4(),
+        email=email,
+        firstname=first_name,
+        lastname=last_name,
+        password=hash_password(password),
     )
+    return user
 
-    campaign.no_of_supporters += 1
-    db.add(donation)
-    db.add(campaign)
-    return
+
+async def authenticate_user(db: AsyncSession, email: str, password: str) -> User:
+    if not (user := await check_user_exists_by_email(db, email)):
+        raise exceptions.UserNotFound()
+    if not check_password(password, db_password_hash=user.password):
+        raise exceptions.InvalidCredentials()
+    return user
