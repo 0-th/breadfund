@@ -43,7 +43,7 @@ jobs:
             echo "Running database migrations..."
             # Create a temporary container to run migrations
             docker run --rm \
-              -v $(pwd)/alembic.ini:/app/alembic.ini \
+              -v $(pwd):/app \
               -e DATABASE_URL="${PROD_DATABASE_URL}" \
               zr0th/breadfund:latest \
               alembic upgrade head
