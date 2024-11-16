@@ -6,21 +6,9 @@ RUN apt-get update && \
     apt clean && \
     rm -rf /var/cache/apt/*
 
-# Prevents Python from writing pyc files.
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PYTHONIOENCODING=utf-8
 
 WORKDIR /app
-
-# Create a non-privileged user
-ARG UID=1000
-RUN adduser \
-    --disabled-password \
-    --gecos "" \
-    --home "/nonexistent" \
-    --shell "/sbin/nologin" \
-    --no-create-home \
-    --uid "${UID}" \
-    appuser
 
 # Download dependencies
 RUN --mount=type=cache,target=/root/.cache/pip \
@@ -30,19 +18,12 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 # Copy application files
 COPY . .
 
-# Fix permissions for appuser
-RUN chown -R appuser:appuser /app && \
-    chmod -R 755 /app && \
-    chmod +x /app/scripts/*
-
 # Add scripts folder to PATH
 ENV PATH "$PATH:/app/scripts"
 
-# Now switch to non-root user
-USER appuser
+# Make scripts executable
+RUN chmod +x /app/scripts/*
 
-# Expose the port that the application listens on.
 EXPOSE 8000
 
-# Run the application.
 CMD /app/scripts/start-prod.sh
