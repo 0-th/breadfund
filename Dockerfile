@@ -24,5 +24,6 @@ ENV PATH "$PATH:/app/scripts"
 # Make scripts executable
 RUN chmod +x /app/scripts/*
 
+EXPOSE 8000
 
-CMD ["fastapi", "run", "src/main.py", "--port", "80", "--workers", "4"]
+CMD ["fastapi", "run", "src/main.py", "--port", "80"]
