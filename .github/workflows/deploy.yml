@@ -73,8 +73,6 @@ jobs:
             # Start the new services
             docker compose up -d
 
-            docker compose exec breadfund_app "alembic upgrade head"
-
             # Check if services are healthy
             sleep 10  # Give services time to start
             if ! docker compose ps | grep -q "running"; then
