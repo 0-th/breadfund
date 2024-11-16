@@ -23,5 +23,5 @@ if settings.ENVIRONMENT.is_deployed:
     app_configs["root_path"] = f"/v/{settings.APP_VERSION}"
 
 # hide docs prod
-if not settings.ENVIRONMENT.is_debug:
-    app_configs["openapi_url"] = None
+# if not settings.ENVIRONMENT.is_debug:
+#     app_configs["openapi_url"] = None
