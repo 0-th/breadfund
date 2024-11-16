@@ -1,0 +1,72 @@
+name: Deploy to Cloud server
+
+on:
+  workflow_run:
+    # complete building and pushing the docker image before deploying
+    workflows: ["build.yml"]
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Copy configuration files
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          source: "docker-compose.yml"
+          target: "~/app/"
+          strip_components: 0
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          script: |
+            cd ~/app
+
+            # Pull the new images first
+            docker compose pull
+
+            # Check if pull was successful
+            if [ $? -ne 0 ]; then
+              echo "Failed to pull new images"
+              exit 1
+            fi
+
+            # Store the current state for rollback if needed
+            docker compose ps > ~/app/previous_state.txt
+
+            # Gracefully stop the services
+            docker compose down --remove-orphans
+
+            # Start the new services
+            docker compose up -d
+
+            # Check if services are healthy
+            sleep 10  # Give services time to start
+            if ! docker compose ps | grep -q "running"; then
+              echo "Services failed to start properly"
+              echo "Rolling back to previous state..."
+              docker compose down
+              # Restore previous images and restart
+              docker compose up -d
+              exit 1
+            fi
+
+            # Clean up only if deployment was successful
+            docker image prune -f
+
+            echo "Deployment completed successfully"
