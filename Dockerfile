@@ -1,5 +1,4 @@
-ARG PYTHON_VERSION=3.12
-FROM python:${PYTHON_VERSION}-slim as base
+FROM tiangolo/uvicorn-gunicorn:python3.12-slim
 
 RUN apt-get update && \
     apt-get install -y netcat-openbsd gcc libpq-dev && \
