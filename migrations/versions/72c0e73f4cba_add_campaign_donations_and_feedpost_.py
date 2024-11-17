@@ -1,8 +1,8 @@
-"""add campaign donation and feedpost relationsdocker
+"""add campaign donations and feedpost relationsdocker
 
-Revision ID: 44f8c6f4e8ea
+Revision ID: 72c0e73f4cba
 Revises:
-Create Date: 2024-11-15 17:07:09.457559
+Create Date: 2024-11-17 01:28:37.970215
 
 """
 
@@ -13,7 +13,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = "44f8c6f4e8ea"
+revision: str = "72c0e73f4cba"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -64,11 +64,13 @@ def upgrade() -> None:
     op.create_table(
         "donation",
         sa.Column("anonymous", sa.Boolean(), nullable=False),
+        sa.Column("payaza_reference", sa.String(), nullable=False),
+        sa.Column("transaction_reference", sa.String(), nullable=False),
         sa.Column("name", sa.String(), nullable=True),
         sa.Column(
             "social_media_link",
             postgresql.ARRAY(sa.String(), zero_indexes=True),
-            nullable=False,
+            nullable=True,
         ),
         sa.Column("donor_id", sa.Uuid(), nullable=True),
         sa.Column("recovery_acct_no", sa.Integer(), nullable=False),

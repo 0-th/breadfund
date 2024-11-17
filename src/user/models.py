@@ -1,7 +1,7 @@
 from enum import Enum
 from uuid import UUID
 
-from sqlalchemy import String
+from sqlalchemy import String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.database import Base
@@ -14,7 +14,10 @@ class Gender(str, Enum):
 
 class User(Base):
     __tablename__ = "users"
-    __table_args__ = {"extend_existing": True}
+    __table_args__ = (
+        UniqueConstraint("email", name="users_email_unique"),
+        {"extend_existing": True},
+    )
     id: Mapped[UUID] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(String(255))
     gender: Mapped[Gender] = mapped_column(String(255))

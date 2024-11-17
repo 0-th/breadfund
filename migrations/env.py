@@ -30,6 +30,47 @@ target_metadata = metadata
 # ... etc.
 config.set_main_option("sqlalchemy.url", str(settings.DATABASE_URL))
 
+# List of tables managed by Laravel that should be ignored by Alembic
+IGNORED_TABLES = {
+    "migrations",
+    "failed_jobs",
+    "jobs",
+    "sessions",
+    "password_reset_tokens",
+    "personal_access_tokens",
+    "job_batches",
+    "cache_locks",
+    "cache",
+    "kycs",
+    # Add any other Laravel tables here
+}
+
+
+def include_object(object, name, type_, reflected, compare_to):
+    """
+    Returns False for objects that should be ignored by Alembic
+    """
+    # Ignore all tables in IGNORED_TABLES
+    if type_ == "table" and name in IGNORED_TABLES:
+        return False
+
+    # Ignore indexes and constraints on ignored tables
+    if type_ in ("index", "unique_constraint", "foreign_key_constraint"):
+        table_name = object.table.name
+        if table_name in IGNORED_TABLES:
+            return False
+
+    # For the users table, only include columns that are defined in your
+    # SQLAlchemy model
+    if type_ == "column" and object.table.name == "users":
+        # Get the list of column names from your SQLAlchemy User model
+        from src.user.models import User
+
+        allowed_user_columns = {column.name for column in User.__table__.columns}
+        return name in allowed_user_columns
+
+    return True
+
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
@@ -50,6 +91,7 @@ def run_migrations_offline() -> None:
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
         compare_server_default=True,
+        include_object=include_object,
     )
 
     with context.begin_transaction():
@@ -57,7 +99,12 @@ def run_migrations_offline() -> None:
 
 
 def do_run_migrations(connection: Connection) -> None:
-    context.configure(connection=connection, target_metadata=target_metadata)
+    context.configure(
+        connection=connection,
+        target_metadata=target_metadata,
+        compare_server_default=True,
+        include_object=include_object,
+    )
 
     with context.begin_transaction():
         context.run_migrations()

@@ -34,6 +34,7 @@ async def create_user(
         gender=gender,
         password=hash_password(password),
     )
+    db.add(user)
     return user
 
 
