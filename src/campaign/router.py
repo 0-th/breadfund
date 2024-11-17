@@ -128,6 +128,38 @@ async def create_campaign(
     return campaign.id
 
 
+@campaign_router.get(
+    "/",
+    status_code=status.HTTP_200_OK,
+    summary="Retrieve user's campaigns",
+    response_model=list[schemas.CampaignResponse],
+)
+async def retrieve_my_campaigns(
+    db: Annotated[AsyncSession, Depends(session)],
+    user: Annotated[User, Depends(validate_user_access_token)],
+) -> list[schemas.CampaignResponse]:
+    user_campaigns = await service.retrieve_user_campaigns(db, user.id)
+    campaigns_response = []
+    for campaign in user_campaigns:
+        amt_reached_in_percent = (campaign.amt_reached / campaign.goal) * 100
+        campaigns_response.append(
+            schemas.CampaignResponse(
+                id=campaign.id,
+                title=campaign.title,
+                description=campaign.description,
+                image=campaign.header_img,
+                goal=campaign.goal,
+                amt_reached=campaign.amt_reached,
+                percent_reached=amt_reached_in_percent,
+                category=campaign.category,
+                no_of_reactions=campaign.no_of_reactions,
+                no_of_donors=campaign.no_of_supporters,
+                deadline=campaign.deadline,
+            )
+        )
+    return campaigns_response
+
+
 @campaign_router.patch(
     "/{campaign_id}",
     status_code=status.HTTP_202_ACCEPTED,

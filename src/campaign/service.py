@@ -229,3 +229,10 @@ async def create_donation(
     db.add(donation)
     db.add(campaign)
     return
+
+
+async def retrieve_user_campaigns(db: AsyncSession, user_id: UUID) -> list[Campaign]:
+    query_scalars = await db.scalars(
+        select(Campaign).where(Campaign.creator_id == user_id)
+    )
+    return list(query_scalars.all())
