@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
+from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from starlette import status
 
@@ -28,12 +29,12 @@ async def register_user(
 
 @user_router.post(
     "/login",
-    response_model=str,
+    response_model=schemas.LoginUserResponse,
     status_code=status.HTTP_200_OK,
 )
 async def login(
-    data: schemas.LoginUserRequest,
+    data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Annotated[AsyncSession, Depends(session)],
-) -> str:
-    user = await service.authenticate_user(db, data.email, data.password)
-    return deps.generate_access_token(user)
+) -> schemas.LoginUserResponse:
+    user = await service.authenticate_user(db, data.username, data.password)
+    return schemas.LoginUserResponse(access_token=deps.generate_access_token(user))

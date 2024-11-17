@@ -2,7 +2,7 @@ import re
 from datetime import datetime
 from typing import Annotated, TypeAlias
 
-from pydantic import UUID4, HttpUrl
+from pydantic import UUID4
 from pydantic.fields import Field
 from pydantic.functional_validators import field_validator
 from pydantic.networks import EmailStr
@@ -15,13 +15,15 @@ STRONG_PASSWORD_PATTERN = re.compile(r"^(?=.*[\d])(?=.*[!@#$%^&*])[\w!@#$%^&*]{6
 
 
 class AccessTokenData(CustomModel):
-    iss: HttpUrl
+    sub: UUID4
     iat: datetime
     exp: datetime
-    nbf: datetime
-    jti: str
-    sub: UUID4
-    prv: str
+
+
+class LoginUserResponse(CustomModel):
+    access_token: str
+    token_type: str = Field(default="Bearer")
+    expires_in: int = Field(default=86400)
 
 
 Password: TypeAlias = Annotated[

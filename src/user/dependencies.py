@@ -14,13 +14,12 @@ from src.user.exceptions import InvalidAccessToken
 from src.user.models import User
 from src.user.schemas import AccessTokenData
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="", scopes={})
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/login", scopes={})
 
 
 def generate_access_token(user: User) -> str:
     jwt_data = {
         "sub": str(user.id),
-        "type": "access_token",
         "iat": datetime.utcnow().timestamp(),
         "exp": (datetime.utcnow() + timedelta(days=1)).timestamp(),
     }
