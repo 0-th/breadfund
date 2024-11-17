@@ -1,7 +1,6 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from pydantic.types import UUID4
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from starlette import status
 
@@ -29,7 +28,7 @@ async def register_user(
 
 @user_router.post(
     "/login",
-    response_model=UUID4,
+    response_model=str,
     status_code=status.HTTP_200_OK,
 )
 async def login(

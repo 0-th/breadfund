@@ -8,4 +8,4 @@ def hash_password(password: str) -> str:
 
 
 def check_password(password: str, db_password_hash: str) -> bool:
-    return password_ctx.verify(db_password_hash, hash=db_password_hash)
+    return password_ctx.verify(password, hash=db_password_hash)
