@@ -1,13 +1,15 @@
+from base64 import b64encode
 from io import BytesIO
 from typing import Annotated
 from uuid import UUID
 
 import segno
-from fastapi import APIRouter, Depends, Query, Response, status
-from pydantic.types import UUID4
+from fastapi import APIRouter, Depends, Form, Query, Response, UploadFile, status
+from pydantic.types import UUID4, NaiveDatetime
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
 from src.campaign import dependencies, schemas, service
+from src.campaign.constants import CampaignProgress
 from src.campaign.models import Campaign, FeedPost
 from src.database import session
 from src.user import exceptions as user_exceptions
@@ -33,12 +35,14 @@ async def retrieve_popular_campaigns(
     )
     campaigns_response_schemas = []
     for campaign in campaigns:
-        amt_reached_in_percent = (campaign.amt_reached / campaign.goal) * 100
+        amt_reached_in_percent = (
+            (campaign.amt_reached / campaign.goal) * 100 if campaign.goal else 0.0
+        )
         campaign_response = schemas.CampaignResponse(
             id=campaign.id,
             title=campaign.title,
             description=campaign.description,
-            image=campaign.header_img,
+            image=b64encode(campaign.header_img).decode(),
             goal=campaign.goal,
             amt_reached=campaign.amt_reached,
             percent_reached=amt_reached_in_percent,
@@ -63,14 +67,21 @@ async def retrieve_campaign(
     db: Annotated[AsyncSession, Depends(session)],
     campaign: Annotated[Campaign, Depends(dependencies.validate_campaign_exist)],
 ) -> schemas.RetrieveCampaignResponse:
-    amt_reached_in_percent = (campaign.amt_reached / campaign.goal) * 100
+    amt_reached_in_percent = (
+        (campaign.amt_reached / campaign.goal) * 100 if campaign.goal else 0.0
+    )
     campaign_feed_posts: list[schemas.FeedResponse] = []
     for feed_post in await campaign.awaitable_attrs.feed_posts:
         campaign_feed_posts.append(
             schemas.FeedResponse(
                 id=feed_post.id,
                 text=feed_post.text,
-                media=feed_post.media,
+                media=[
+                    b64encode(feed_post_medium_bytes).decode()
+                    for feed_post_medium_bytes in feed_post.media
+                ]
+                if feed_post.media
+                else None,
                 no_of_reactions=feed_post.no_of_reactions,
             )
         )
@@ -81,7 +92,7 @@ async def retrieve_campaign(
         id=campaign.id,
         title=campaign.title,
         description=campaign.description,
-        image=campaign.header_img,
+        image=b64encode(campaign.header_img).decode(),
         goal=campaign.goal,
         amt_reached=campaign.amt_reached,
         percent_reached=amt_reached_in_percent,
@@ -111,20 +122,29 @@ async def retrieve_campaign(
 async def create_campaign(
     db: Annotated[AsyncSession, Depends(session)],
     user: Annotated[User, Depends(validate_user_access_token)],
-    data: schemas.CreateCampaignRequest,
+    title: Annotated[str, Form()],
+    description: Annotated[str, Form()],
+    story: Annotated[str, Form()],
+    goal: Annotated[int, Form()],
+    deadline: Annotated[NaiveDatetime, Form()],
+    category: Annotated[list[str], Form()],
+    social_media_links: Annotated[list[str], Form()],
+    header_img: UploadFile,
 ) -> UUID:
+    await header_img.seek(0)
     campaign = await service.create_campaign(
         db,
-        data.title,
-        await data.header_img.read(),
-        data.description,
-        data.story,
-        data.goal,
-        data.deadline,
-        data.category,
-        data.social_media_links,
+        title,
+        await header_img.read(),
+        description,
+        story,
+        goal,
+        deadline,
+        category,
+        social_media_links,
         user.id,
     )
+    await header_img.close()
     return campaign.id
 
 
@@ -141,13 +161,15 @@ async def retrieve_my_campaigns(
     user_campaigns = await service.retrieve_user_campaigns(db, user.id)
     campaigns_response = []
     for campaign in user_campaigns:
-        amt_reached_in_percent = (campaign.amt_reached / campaign.goal) * 100
+        amt_reached_in_percent = (
+            (campaign.amt_reached / campaign.goal) * 100 if campaign.goal else 0.0
+        )
         campaigns_response.append(
             schemas.CampaignResponse(
                 id=campaign.id,
                 title=campaign.title,
                 description=campaign.description,
-                image=campaign.header_img,
+                image=b64encode(campaign.header_img).decode(),
                 goal=campaign.goal,
                 amt_reached=campaign.amt_reached,
                 percent_reached=amt_reached_in_percent,
@@ -170,19 +192,28 @@ async def retrieve_my_campaigns(
 async def update_campaign(
     db: Annotated[AsyncSession, Depends(session)],
     campaign: Annotated[Campaign, Depends(dependencies.validate_campaign_exist)],
-    data: schemas.UpdateCampaignRequest,
+    title: Annotated[str | None, Form()] = None,
+    description: Annotated[str | None, Form()] = None,
+    story: Annotated[str | None, Form()] = None,
+    goal: Annotated[int | None, Form()] = None,
+    deadline: Annotated[NaiveDatetime | None, Form()] = None,
+    category: Annotated[list[str] | None, Form()] = None,
+    social_media_links: Annotated[list[str] | None, Form()] = None,
+    progress: Annotated[CampaignProgress | None, Form()] = None,
+    header_img: Annotated[UploadFile | None, Form()] = None,
 ) -> None:
     await service.update_campaign(
         db,
         campaign,
-        data.title,
-        await data.header_img.read() if data.header_img else None,
-        data.description,
-        data.story,
-        data.goal,
-        data.deadline,
-        data.category,
-        data.social_media_links,
+        title,
+        await header_img.read() if header_img else None,
+        description,
+        story,
+        goal,
+        deadline,
+        category,
+        social_media_links,
+        progress,
     )
     return
 
@@ -230,7 +261,7 @@ async def generate_qr_code(
 ):
     campaign_url = str(data.full_url_to_campaign_page)
     buffer = BytesIO()
-    segno.make_qr(campaign_url).save(buffer, scale=10)
+    segno.make_qr(campaign_url).save(buffer, scale=10, kind="png")
     buffer.seek(0)
 
     return Response(content=buffer.getvalue(), media_type="image/png")
@@ -241,11 +272,11 @@ async def generate_qr_code(
     status_code=status.HTTP_204_NO_CONTENT,
     response_model=None,
     summary="Add a beneficiary to a campaign",
+    dependencies=[Depends(dependencies.validate_user_created_campaign)],
 )
 async def add_beneficiary(
     db: Annotated[AsyncSession, Depends(session)],
     campaign: Annotated[Campaign, Depends(dependencies.validate_campaign_exist)],
-    user: Annotated[User, Depends(dependencies.validate_user_created_campaign)],
     email: str,
 ) -> None:
     beneficiary = await user_service.check_user_exists_by_email(db, email)
@@ -282,20 +313,26 @@ async def create_feed_post(
     db: Annotated[AsyncSession, Depends(session)],
     campaign: Annotated[Campaign, Depends(dependencies.validate_campaign_exist)],
     user: Annotated[User, Depends(validate_user_access_token)],
-    data: schemas.CreateFeedPostRequest,
+    text: Annotated[str, Form()],
+    media: list[UploadFile] | None = None,
 ) -> schemas.FeedResponse:
     # TODO: Send feed posts to donors' emails
     feed_post = await service.create_feed_post(
         db,
-        data.text,
-        [await media.read() for media in data.media] if data.media else None,
+        text,
+        [await media.read() for media in media] if media else None,
         user.id,
         campaign,
     )
     return schemas.FeedResponse(
         id=feed_post.id,
         text=feed_post.text,
-        media=feed_post.media,
+        media=[
+            b64encode(feed_post_medium_bytes).decode()
+            for feed_post_medium_bytes in feed_post.media
+        ]
+        if feed_post.media
+        else None,
         no_of_reactions=feed_post.no_of_reactions,
     )
 
@@ -312,18 +349,24 @@ async def create_feed_post(
 async def update_feed_post(
     db: Annotated[AsyncSession, Depends(session)],
     feed_post: Annotated[FeedPost, Depends(dependencies.validate_feed_post_exist)],
-    data: schemas.CreateFeedPostRequest,
+    text: Annotated[str | None, Form()] = None,
+    media: list[UploadFile] | None = None,
 ):
     await service.update_feed_post(
         db,
         feed_post,
-        data.text,
-        [await media.read() for media in data.media] if data.media else None,
+        text,
+        [await media.read() for media in media] if media else None,
     )
     return schemas.FeedResponse(
         id=feed_post.id,
         text=feed_post.text,
-        media=feed_post.media,
+        media=[
+            b64encode(feed_post_medium_bytes).decode()
+            for feed_post_medium_bytes in feed_post.media
+        ]
+        if feed_post.media
+        else None,
         no_of_reactions=feed_post.no_of_reactions,
     )
 

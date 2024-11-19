@@ -51,7 +51,7 @@ logs:
 .PHONY: logs
 
 mm:
-> docker compose -f $(compose) exec breadfund_app alembic revision --autogenerate -m $(args)docker
+> docker compose -f $(compose) exec breadfund_app alembic revision --autogenerate -m $(args)
 .PHONY: mm
 
 migrate:

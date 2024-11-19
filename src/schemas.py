@@ -22,7 +22,7 @@ class CustomModel(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def set_null_microseconds(cls, data: dict[str, Any]) -> dict[str, object] | None:
-        if not isinstance(data, bytes):
+        if isinstance(data, dict):
             datetime_fields = {
                 k: v.replace(microsecond=0)
                 for k, v in data.items()

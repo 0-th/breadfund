@@ -25,3 +25,6 @@ if settings.ENVIRONMENT.is_deployed:
 # hide docs prod
 # if not settings.ENVIRONMENT.is_debug:
 #     app_configs["openapi_url"] = None
+
+# swagger ui parameters
+app_configs["swagger_ui_parameters"] = {"persistAuthorization": True}

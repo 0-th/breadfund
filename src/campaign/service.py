@@ -4,6 +4,7 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.campaign.constants import CampaignProgress
 from src.campaign.models import (
     Campaign,
     Donation,
@@ -77,6 +78,7 @@ async def update_campaign(
     deadline: datetime | None,
     category: list[str] | None,
     social_media_links: list[str] | None,
+    progress: CampaignProgress | None,
 ) -> None:
     if title:
         campaign.title = title
@@ -94,6 +96,8 @@ async def update_campaign(
         campaign.category = category
     if social_media_links:
         campaign.social_media_links = social_media_links
+    if progress:
+        campaign.progress = progress
 
     db.add(campaign)
     return

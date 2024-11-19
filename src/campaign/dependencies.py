@@ -34,7 +34,7 @@ async def validate_user_not_already_reacted_to_campaign(
     campaign: Annotated[Campaign, Depends(validate_campaign_exist)],
     user: Annotated[User, Depends(validate_user_access_token)],
 ) -> None:
-    if service.user_reaction_to_campaign_exists(db, campaign, user):
+    if await service.user_reaction_to_campaign_exists(db, campaign, user):
         raise exceptions.UserAlreadyReacted()
     return
 
@@ -44,7 +44,7 @@ async def validate_user_not_already_reacted_to_feed_post(
     feed_post: Annotated[FeedPost, Depends(validate_feed_post_exist)],
     user: Annotated[User, Depends(validate_user_access_token)],
 ) -> None:
-    if service.user_reaction_to_feed_post_exists(db, feed_post, user):
+    if await service.user_reaction_to_feed_post_exists(db, feed_post, user):
         raise exceptions.UserAlreadyReacted()
     return
 

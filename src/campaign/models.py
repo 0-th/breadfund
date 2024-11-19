@@ -6,6 +6,7 @@ from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import LargeBinary, String
 
+from src.campaign.constants import CampaignProgress
 from src.constants import SA_RELATIONS_CASCADE_OPTIONS
 from src.database import Base, CommonFieldsMixin, TimestampMixin
 
@@ -20,7 +21,7 @@ class Campaign(CommonFieldsMixin, TimestampMixin, Base):
     description: Mapped[str]
     story: Mapped[str]
     goal: Mapped[int] = mapped_column(BigInteger)
-    amt_reached: Mapped[int] = mapped_column(BigInteger, init=False)
+    amt_reached: Mapped[int] = mapped_column(BigInteger, default=0, init=False)
     deadline: Mapped[datetime | None]
     category: Mapped[list[str]] = mapped_column(ARRAY(String, zero_indexes=True))
     social_media_links: Mapped[list[str]] = mapped_column(
@@ -48,6 +49,9 @@ class Campaign(CommonFieldsMixin, TimestampMixin, Base):
     no_of_reactions: Mapped[int] = mapped_column(default=0)
     beneficiary_user_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("users.id", ondelete="SET NULL"), init=False
+    )
+    progress: Mapped[str] = mapped_column(
+        default=CampaignProgress.IN_PROGRESS.value, init=False
     )
 
 
