@@ -338,7 +338,7 @@ async def create_feed_post(
 
 
 @campaign_router.patch(
-    "{campaign_id}/feed-post/{feed_id}",
+    "/{campaign_id}/feed-post/{feed_id}",
     status_code=status.HTTP_202_ACCEPTED,
     response_model=schemas.FeedResponse,
     dependencies=[
@@ -372,7 +372,7 @@ async def update_feed_post(
 
 
 @campaign_router.delete(
-    "{campaign_id}/feed-post/{feed_id}",
+    "/{campaign_id}/feed-post/{feed_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     response_model=None,
     dependencies=[
